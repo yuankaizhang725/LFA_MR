@@ -9,7 +9,7 @@ library(tidyr)
 #' @description Implements Multivariate Mendelian Randomization using Bayesian Factor Analysis 
 #' to handle multiple correlated exposures
 #' 
-#' @param exposure_data Matrix or data frame of exposure variables
+#' @param exposure_beta Matrix or data frame of exposure variables
 #' @param outcome_beta Vector of outcome betas
 #' @param outcome_se Vector of outcome standard errors
 #' @param Kmax Maximum number of factors to consider
@@ -20,7 +20,7 @@ library(tidyr)
 #' @param plot_diagnostics Logical, whether to generate diagnostic plots
 #' @param generate_report Logical, whether to generate summary report
 #' @return Object of class mvmr_bfa containing analysis results
-MVMR_BFA <- function(exposure_data, 
+MVMR_BFA <- function(exposure_beta, 
                      outcome_beta,
                      outcome_se,
                      Kmax,
@@ -37,7 +37,7 @@ MVMR_BFA <- function(exposure_data,
                      generate_report = TRUE) {
   
   # Input validation
-  validation <- check_mvmr_bfa_inputs(exposure_data, outcome_beta, outcome_se)
+  validation <- check_mvmr_bfa_inputs(exposure_beta, outcome_beta, outcome_se)
   if (!validation$valid) {
     stop(paste(validation$messages, collapse = "\n"))
   }
@@ -48,7 +48,7 @@ MVMR_BFA <- function(exposure_data,
   if (!is.null(seed)) set.seed(seed)
   
   # Scale exposure data
-  exposure_scaled <- scale(exposure_data)
+  exposure_scaled <- scale(exposure_beta)
   
   # Perform Bayesian Factor Analysis
   bfa_fit <- befa(exposure_scaled, 
@@ -181,8 +181,7 @@ MVMR_BFA <- function(exposure_data,
   return(results)
 }
 
-
-# Print method for mvmr_bfa objects
+# print method for mvmr_bfa objects
 print.mvmr_bfa <- function(x, ...) {
   cat("\nMVMR-BFA Analysis Results\n")
   cat("=======================\n\n")
