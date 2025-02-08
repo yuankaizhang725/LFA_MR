@@ -9,7 +9,6 @@ plot_mvmr_bfa_diagnostics <- function(mvmr_bfa_results, diagnostics) {
   plots <- list()
   
   # Factor loadings heatmap from alpha_means matrix
-  # Get number of exposures and factors
   p <- nrow(mvmr_bfa_results$bfa_summary$alpha)
   n_factors <- max(mvmr_bfa_results$bfa_fit$dedic[nrow(mvmr_bfa_results$bfa_fit$dedic), ])
   
@@ -27,7 +26,9 @@ plot_mvmr_bfa_diagnostics <- function(mvmr_bfa_results, diagnostics) {
   }
   
   # Convert to data frame for plotting
-  rownames(alpha_means) <- rownames(mvmr_bfa_results$bfa_summary$alpha)
+  clean_names <- gsub("alpha:", "", rownames(mvmr_bfa_results$bfa_summary$alpha))
+  
+  rownames(alpha_means) <- clean_names
   colnames(alpha_means) <- paste0("Factor", 1:n_factors)
   
   loadings_data <- as.data.frame(alpha_means)
