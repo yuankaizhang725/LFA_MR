@@ -105,3 +105,26 @@ calculate_optimal_parameters <- function(exposure_data, outcome_beta, outcome_se
     mean_cv_error = mean_cv_error
   ))
 }
+
+# Create visualization of cross-validation results
+library(ggplot2)
+
+plot_cv_results <- function(cv_results) {
+  cv_data <- data.frame(
+    Kmax = as.numeric(gsub("Kmax_", "", rownames(cv_results$cv_results))),
+    CV_Error = cv_results$mean_cv_error
+  )
+  
+  ggplot(cv_data, aes(x = Kmax, y = CV_Error)) +
+    geom_line() +
+    geom_point() +
+    geom_vline(xintercept = cv_results$optimal_Kmax, linetype = "dashed", color = "red") +
+    theme_minimal() +
+    labs(title = "Cross-validation Error by Maximum Number of Factors",
+         x = "Maximum Number of Factors (Kmax)",
+         y = "Mean Cross-validation Error")
+}
+
+# Plot cross-validation results
+cv_plot <- plot_cv_results(cv_results)
+print(cv_plot)
