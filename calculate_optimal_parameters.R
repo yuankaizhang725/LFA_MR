@@ -1,13 +1,13 @@
 #' Calculate optimal tuning parameters using cross-validation
-#' @param exposure_data Matrix of exposure variables
+#' @param exposure_beta Matrix of exposure variables
 #' @param outcome_beta Vector of outcome betas
 #' @param outcome_se Vector of outcome standard errors
 #' @param Kmax_range Vector of Kmax values to try
 #' @param nfolds Number of cross-validation folds
 #' @return List with optimal parameters and cv results
-calculate_optimal_parameters <- function(exposure_data, outcome_beta, outcome_se,
+calculate_optimal_parameters <- function(exposure_beta, outcome_beta, outcome_se,
                                          Kmax_range = 3:8, nfolds = 5) {
-  n <- nrow(exposure_data)
+  n <- nrow(exposure_beta)
   folds <- cut(seq(1, n), breaks = nfolds, labels = FALSE)
   
   cv_results <- matrix(NA, nrow = length(Kmax_range), ncol = nfolds)
@@ -19,7 +19,7 @@ calculate_optimal_parameters <- function(exposure_data, outcome_beta, outcome_se
     for(fold in 1:nfolds) {
       # Split data into training and validation sets
       test_idx <- which(folds == fold)
-      train_exposure <- exposure_data[-test_idx,]
+      train_exposure <- exposure_beta[-test_idx,]
       train_outcome_beta <- outcome_beta[-test_idx]
       train_outcome_se <- outcome_se[-test_idx]
       
@@ -28,7 +28,7 @@ calculate_optimal_parameters <- function(exposure_data, outcome_beta, outcome_se
       
       # Fit model on training data
       fit <- try({
-        MVMR_BFA(exposure_data = train_exposure,
+        MVMR_BFA(exposure_beta = train_exposure,
                  outcome_beta = train_outcome_beta,
                  outcome_se = train_outcome_se,
                  Kmax = Kmax,
@@ -38,7 +38,7 @@ calculate_optimal_parameters <- function(exposure_data, outcome_beta, outcome_se
       
       if(!inherits(fit, "try-error")) {
         # Get test data
-        test_exposure <- exposure_data[test_idx,]
+        test_exposure <- exposure_beta[test_idx,]
         test_outcome <- outcome_beta[test_idx]
         
         # Scale test data using training mean and sd
@@ -48,7 +48,7 @@ calculate_optimal_parameters <- function(exposure_data, outcome_beta, outcome_se
         
         # Extract parameters needed for factor score calculation
         n_factors <- ncol(fit$factor_scores)
-        p <- ncol(exposure_data)
+        p <- ncol(exposure_beta)
         
         # Get final factor allocation and loadings
         final_dedic <- fit$bfa_fit$dedic[nrow(fit$bfa_fit$dedic), ]
@@ -105,26 +105,3 @@ calculate_optimal_parameters <- function(exposure_data, outcome_beta, outcome_se
     mean_cv_error = mean_cv_error
   ))
 }
-
-# Create visualization of cross-validation results
-library(ggplot2)
-
-plot_cv_results <- function(cv_results) {
-  cv_data <- data.frame(
-    Kmax = as.numeric(gsub("Kmax_", "", rownames(cv_results$cv_results))),
-    CV_Error = cv_results$mean_cv_error
-  )
-  
-  ggplot(cv_data, aes(x = Kmax, y = CV_Error)) +
-    geom_line() +
-    geom_point() +
-    geom_vline(xintercept = cv_results$optimal_Kmax, linetype = "dashed", color = "red") +
-    theme_minimal() +
-    labs(title = "Cross-validation Error by Maximum Number of Factors",
-         x = "Maximum Number of Factors (Kmax)",
-         y = "Mean Cross-validation Error")
-}
-
-# Plot cross-validation results
-cv_plot <- plot_cv_results(cv_results)
-print(cv_plot)
