@@ -80,6 +80,7 @@ plot_mvmr_bfa_diagnostics <- function(mvmr_bfa_results, diagnostics) {
   
   # MCMC trace plots for representative loadings
   alpha_mcmc <- as.data.frame(mvmr_bfa_results$bfa_fit$alpha[,1:min(5, ncol(mvmr_bfa_results$bfa_fit$alpha))])
+  colnames(alpha_mcmc) <- gsub("alpha:", "", colnames(alpha_mcmc))
   alpha_long <- tidyr::pivot_longer(
     alpha_mcmc,
     cols = everything(),
