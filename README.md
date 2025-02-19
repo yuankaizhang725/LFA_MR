@@ -108,11 +108,8 @@ mvmr_bfa_results <- MVMR_BFA(
 # Show results
 print.mvmr_bfa(mvmr_bfa_results)
 
-# Plot posterior distributions of causal effects
-plot(mvmr_bfa_results, type = "causal")
-
-# Plot factor loadings with credible intervals
-plot(mvmr_bfa_results, type = "loadings")
+# Show plots
+mvmr_bfa_results$plots
 ```
 
 
