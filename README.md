@@ -174,10 +174,6 @@ print(cv_results$mean_cv_error)  # Mean cross-validation error for each Kmax
 ```
 
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## Contact
 
 For questions or support, please open an issue on GitHub or contact the repository maintainer at yuankaizhang725@github.com.
